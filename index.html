@@ -268,7 +268,17 @@ function formatRestTime(seconds) {
   const s = String(seconds % 60).padStart(2, "0");
   return `${m}:${s}`;
 }
+function playRestSound() {
 
+    const audio = new Audio(
+        "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+    );
+
+    audio.volume = 0.4;
+
+    audio.play().catch(() => {});
+
+}
 function updateRestDisplay(){
 
     $("#restCountdown").textContent = formatRestTime(restRemaining);
@@ -316,16 +326,19 @@ function updateRestDisplay(){
 
     if (restRemaining <= 0) {
 
-      clearInterval(restTimerInterval);
-      restRunning = false;
+    clearInterval(restTimerInterval);
 
-      if (navigator.vibrate) {
+    restRunning = false;
+
+    if (navigator.vibrate) {
         navigator.vibrate([200,100,200]);
-      }
-
-      toast("⏱ Descanso terminado");
-
     }
+
+    playRestSound();
+
+    toast("⏱ Descanso terminado");
+
+}
 
   },1000);
 
