@@ -218,7 +218,11 @@
 
 </div>
   <div id="restCountdown" class="rest-countdown">01:30</div>
+<div class="rest-progress">
 
+    <div id="restProgressBar" class="rest-progress-bar"></div>
+
+</div>
   <div class="rest-buttons">
     <button id="pauseRestBtn" class="btn btn-ghost" type="button">⏸</button>
     <button id="resetRestBtn" class="btn btn-ghost" type="button">↺</button>
@@ -265,13 +269,35 @@ function formatRestTime(seconds) {
   return `${m}:${s}`;
 }
 
-function updateRestDisplay() {
-  const countdown = $("#restCountdown");
-  if (countdown) {
-    countdown.textContent = formatRestTime(restRemaining);
-  }
-}
-function startRestTimer() {
+function updateRestDisplay(){
+
+    $("#restCountdown").textContent = formatRestTime(restRemaining);
+
+    const percent = (restRemaining / restTime) * 100;
+
+    const bar = $("#restProgressBar");
+
+    if(bar){
+
+        bar.style.width = percent + "%";
+
+        if(percent > 33){
+
+            bar.style.background = "#36d26a";
+
+        }else if(percent > 10){
+
+            bar.style.background = "#ffc107";
+
+        }else{
+
+            bar.style.background = "#ff4b4b";
+
+        }
+
+    }
+
+}function startRestTimer() {
 
   if (restTimerInterval) {
     clearInterval(restTimerInterval);
