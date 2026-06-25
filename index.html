@@ -621,7 +621,7 @@
   <main class="app">
     <header class="topbar">
       <div class="brand">
-        <img class="mark" src="wm-logo.png" alt="Logo WM">
+        <img class="mark" src="assets/wm-logo.png" alt="Logo WM">
         <div>
           <h1>Will<span>Move</span></h1>
           <div class="meta">Registro personal de entrenamiento</div>
@@ -811,6 +811,17 @@
     </div>
   </div>
 
+<div id="restTimer" class="rest-timer hidden">
+  <div class="rest-title">⏱ Descanso</div>
+  <div id="restCountdown" class="rest-countdown">01:30</div>
+
+  <div class="rest-buttons">
+    <button id="pauseRestBtn" class="btn btn-ghost" type="button">⏸</button>
+    <button id="resetRestBtn" class="btn btn-ghost" type="button">↺</button>
+    <button id="closeRestBtn" class="btn btn-danger" type="button">✕</button>
+  </div>
+</div>
+
   <script>
     const GROUPS = ["Pecho", "Espalda", "Hombros", "Bíceps", "Tríceps", "Piernas", "Glúteos", "Core", "Funcional", "Cardio"];
     const DEFAULT_EXERCISES = [
@@ -837,7 +848,90 @@
 
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+// ===== TEMPORIZADOR DE DESCANSO =====
 
+let restTimerInterval = null;
+let restTime = 90;
+let restRemaining = 90;
+let restRunning = false;
+
+function formatRestTime(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function updateRestDisplay() {
+  const countdown = $("#restCountdown");
+  if (countdown) {
+    countdown.textContent = formatRestTime(restRemaining);
+  }
+}
+function startRestTimer() {
+
+  if (restTimerInterval) {
+    clearInterval(restTimerInterval);
+  }
+
+  restRemaining = restTime;
+  restRunning = true;
+  $("#restTimer").classList.remove("hidden");
+  updateRestDisplay();
+
+  restTimerInterval = setInterval(() => {
+
+    restRemaining--;
+
+    updateRestDisplay();
+
+    if (restRemaining <= 0) {
+
+      clearInterval(restTimerInterval);
+      restRunning = false;
+
+      if (navigator.vibrate) {
+        navigator.vibrate([200,100,200]);
+      }
+
+      toast("⏱ Descanso terminado");
+
+    }
+
+  },1000);
+
+}
+
+function pauseRestTimer(){
+
+  if(!restRunning) return;
+
+  clearInterval(restTimerInterval);
+
+  restRunning=false;
+
+}
+
+function resetRestTimer(){
+
+  clearInterval(restTimerInterval);
+
+  restRemaining=restTime;
+
+  restRunning=false;
+
+  updateRestDisplay();
+
+}
+
+function closeRestTimer(){
+
+  clearInterval(restTimerInterval);
+
+  restRunning=false;
+
+  $("#restTimer").classList.add("hidden");
+
+}
     function saveStore() {
       localStorage.setItem("willmove.exercises", JSON.stringify(store.exercises));
       localStorage.setItem("willmove.records", JSON.stringify(store.records));
@@ -996,8 +1090,10 @@
       }
 
       saveStore();
-      resetForm();
-      renderAll();
+resetForm();
+renderAll();
+
+startRestTimer();
     }
 
     function editRecord(id) {
@@ -1393,6 +1489,9 @@
       $("#confirmModal").addEventListener("click", (event) => {
         if (event.target.id === "confirmModal") closeConfirm();
       });
+    $("#pauseRestBtn").addEventListener("click",pauseRestTimer);
+$("#resetRestBtn").addEventListener("click",resetRestTimer);
+$("#closeRestBtn").addEventListener("click",closeRestTimer);
     }
 
     $("#todayLabel").textContent = new Date().toLocaleDateString("es-UY", { weekday: "long", day: "numeric", month: "long" });
