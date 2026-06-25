@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WillMove">
+<meta name="theme-color" content="#0b0b0c">
+  <title>WillMove</title>
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #0f0f10;
+      --panel: #161616;
+      --panel-2: #202020;
+      --line: #303030;
+      --text: #f7f7f7;
+      --muted: #a7a7a7;
+      --soft: #e8e8e8;
+      --accent: #ff6a00;
+      --accent-strong: #ff7a18;
+      --accent-soft: rgba(255, 106, 0, .16);
+      --danger: #ff5f5f;
+      --warning: #f2c94c;
+      --shadow: 0 16px 42px rgba(0, 0, 0, .42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(255, 106, 0, .13), transparent 26rem),
+        linear-gradient(180deg, #111 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 80px;
+      height: 46px;
+      border-radius: 8px;
+      object-fit: contain;
+      object-position: center;
+      background: #111;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .today {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      padding: 8px 0 16px;
+      background: linear-gradient(180deg, #111 70%, rgba(17, 17, 17, 0));
+    }
+
+    .tab {
+      height: 42px;
+      border-radius: 8px;
+      color: var(--soft);
+      background: rgba(22, 22, 22, .94);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-size: 14px;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #111;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(22, 22, 22, .94);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(255, 106, 0, .9);
+      box-shadow: 0 0 0 3px rgba(255, 106, 0, .16);
+    }
+
+    .set-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 16px 0 8px;
+    }
+
+    .set-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .set-row {
+      display: grid;
+      grid-template-columns: 42px 1fr 1fr 42px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .set-num {
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--panel-2);
+      color: var(--soft);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      min-height: 42px;
+      border-radius: 8px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      font-weight: 800;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #111;
+    }
+
+    .btn-ghost {
+      background: var(--panel-2);
+      color: var(--text);
+      border-color: var(--line);
+    }
+
+    .btn-danger {
+      background: rgba(255, 95, 95, .1);
+      color: #ffb4b4;
+      border-color: rgba(255, 95, 95, .32);
+    }
+
+    .btn-icon {
+      width: 42px;
+      padding: 0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-value {
+      margin-top: 4px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .history {
+      display: grid;
+      gap: 14px;
+    }
+
+    .day-title {
+      color: var(--accent);
+      font-weight: 900;
+      margin: 8px 0;
+    }
+
+    .log-item, .exercise-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .log-name, .exercise-name {
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-top: 5px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #ffd7bd;
+      border: 1px solid rgba(255, 106, 0, .28);
+      font-size: 12px;
+      font-weight: 800;
+      margin-left: 7px;
+    }
+
+    .exercise-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .empty {
+      padding: 26px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-item:last-child { border-bottom: 0; }
+
+    .chart-wrap {
+      height: 260px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .export-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .export-card {
+      min-height: 120px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 16px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .export-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      min-width: min(420px, calc(100vw - 28px));
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #111;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+      text-align: center;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, .62);
+      z-index: 30;
+    }
+
+    .modal.open { display: grid; }
+
+    .modal-box {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .topbar, .tabs, .actions, .btn, .filters, .toast, .modal { display: none !important; }
+      .app { width: 100%; padding: 0; }
+      .section { display: none !important; }
+      #historial { display: block !important; }
+      .panel, .stat, .log-item { box-shadow: none; border-color: #ddd; background: #fff; color: #111; }
+      .meta, .stat-label { color: #555; }
+    }
+
+    @media (max-width: 820px) {
+      body {
+        padding-bottom: calc(82px + env(safe-area-inset-bottom));
+      }
+
+      .app {
+        padding: 12px 12px 22px;
+      }
+
+      .topbar {
+        align-items: center;
+        padding: 8px 0 12px;
+      }
+
+      .brand {
+        gap: 10px;
+      }
+
+      .mark {
+        width: 68px;
+        height: 40px;
+      }
+
+      h1 {
+        font-size: 21px;
+      }
+
+      .today { display: none; }
+
+      .tabs {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        top: auto;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(12, 12, 12, .96);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+        backdrop-filter: blur(16px);
+      }
+
+      .tab {
+        min-width: 0;
+        height: 48px;
+        padding: 0 4px;
+        font-size: 11px;
+        line-height: 1.1;
+        text-align: center;
+      }
+
+      .grid, .form-grid, .filters, .export-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-head,
+      .panel-body {
+        padding: 14px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stat {
+        padding: 12px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      input, select, textarea {
+        min-height: 48px;
+        font-size: 16px;
+      }
+
+      .set-row {
+        grid-template-columns: 36px 1fr 1fr 38px;
+      }
+
+      .set-num,
+      .btn-icon {
+        height: 48px;
+      }
+
+      .log-item,
+      .exercise-item {
+        grid-template-columns: 1fr;
+      }
+
+      .log-item .actions,
+      .exercise-item .actions {
+        margin-top: 0;
+      }
+
+      .btn {
+        width: 100%;
+        min-height: 48px;
+      }
+
+      .btn-icon {
+        width: 38px;
+      }
+
+      .chart-wrap {
+        height: 230px;
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .tab {
+        font-size: 10px;
+      }
+
+      .panel-title {
+        font-size: 16px;
+      }
+
+      .set-row {
+        grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr) 36px;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img class="mark" src="wm-logo.png" alt="Logo WM">
+        <div>
+          <h1>Will<span>Move</span></h1>
+          <div class="meta">Registro personal de entrenamiento</div>
+        </div>
+      </div>
+      <div class="today" id="todayLabel"></div>
+    </header>
+
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab active" data-tab="registrar">Registrar</button>
+      <button class="tab" data-tab="historial">Historial</button>
+      <button class="tab" data-tab="progreso">Progreso</button>
+      <button class="tab" data-tab="ejercicios">Ejercicios</button>
+      <button class="tab" data-tab="datos">Datos</button>
+    </nav>
+
+    <section id="registrar" class="section active">
+      <div class="grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title" id="formTitle">Registrar entrenamiento</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="regFecha">Fecha</label>
+                <input type="date" id="regFecha">
+              </div>
+              <div class="field">
+                <label for="regEjercicio">Ejercicio</label>
+                <select id="regEjercicio"></select>
+              </div>
+              <div class="field full">
+                <label for="regNotas">Notas</label>
+                <textarea id="regNotas" placeholder="Ej: buena sensación, molestia, objetivo de la próxima sesión"></textarea>
+              </div>
+            </div>
+
+            <div class="set-toolbar">
+              <strong>Series</strong>
+              <button class="btn btn-ghost" id="addSetBtn" type="button">+ Serie</button>
+            </div>
+            <div class="set-list" id="setList"></div>
+
+            <div class="actions">
+              <button class="btn btn-primary" id="saveRecordBtn" type="button">Guardar</button>
+              <button class="btn btn-ghost" id="cancelEditBtn" type="button" hidden>Cancelar edición</button>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Últimos registros</h2>
+          </div>
+          <div class="panel-body">
+            <div class="mini-list" id="recentList"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="historial" class="section">
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Sesiones</div><div class="stat-value" id="statSessions">0</div></div>
+        <div class="stat"><div class="stat-label">Registros</div><div class="stat-value" id="statRecords">0</div></div>
+        <div class="stat"><div class="stat-label">Series</div><div class="stat-value" id="statSets">0</div></div>
+        <div class="stat"><div class="stat-label">Volumen kg</div><div class="stat-value" id="statVolume">0</div></div>
+      </div>
+      <div class="filters">
+        <input id="historySearch" type="search" placeholder="Buscar ejercicio o nota">
+        <select id="historyExercise"></select>
+      </div>
+      <div class="history" id="historyList"></div>
+    </section>
+
+    <section id="progreso" class="section">
+      <div class="grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Progreso por ejercicio</h2>
+          </div>
+          <div class="panel-body">
+            <div class="filters">
+              <select id="progressExercise"></select>
+              <select id="progressMetric">
+                <option value="bestWeight">Mejor peso</option>
+                <option value="volume">Volumen</option>
+                <option value="sets">Series</option>
+              </select>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="progressChart" width="900" height="360"></canvas>
+            </div>
+          </div>
+        </article>
+        <aside class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Resumen</h2>
+          </div>
+          <div class="panel-body">
+            <div class="mini-list" id="progressSummary"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="ejercicios" class="section">
+      <div class="grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Ejercicios</h2>
+          </div>
+          <div class="panel-body">
+            <div class="filters">
+              <input id="exerciseSearch" type="search" placeholder="Buscar ejercicio">
+              <select id="groupFilter"></select>
+            </div>
+            <div class="exercise-list" id="exerciseList"></div>
+          </div>
+        </article>
+        <aside class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">Agregar ejercicio</h2>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="newExerciseName">Nombre</label>
+              <input id="newExerciseName" placeholder="Ej: Press inclinado">
+            </div>
+            <div class="field" style="margin-top:12px;">
+              <label for="newExerciseGroup">Grupo</label>
+              <select id="newExerciseGroup"></select>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" id="addExerciseBtn" type="button">Agregar</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="datos" class="section">
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Exportar y respaldo</h2>
+        </div>
+        <div class="panel-body">
+          <div class="export-grid">
+            <button class="btn export-card" id="csvBtn" type="button">
+              Exportar CSV
+              <span>Archivo compatible con Excel o Google Sheets.</span>
+            </button>
+            <button class="btn export-card" id="printBtn" type="button">
+              Exportar PDF
+              <span>Abre la impresión del navegador para guardar como PDF.</span>
+            </button>
+            <button class="btn export-card" id="backupBtn" type="button">
+              Descargar respaldo
+              <span>Guarda ejercicios y registros en un archivo JSON.</span>
+            </button>
+            <button class="btn export-card" id="importBtn" type="button">
+              Importar respaldo
+              <span>Recupera datos desde un archivo JSON anterior.</span>
+            </button>
+          </div>
+          <input class="hidden-file" id="importFile" type="file" accept="application/json">
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-box">
+      <div class="panel-head">
+        <h2 class="panel-title" id="confirmTitle">Confirmar acción</h2>
+      </div>
+      <div class="panel-body">
+        <p class="meta" id="confirmText"></p>
+        <div class="actions">
+          <button class="btn btn-danger" id="confirmYes" type="button">Eliminar</button>
+          <button class="btn btn-ghost" id="confirmNo" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GROUPS = ["Pecho", "Espalda", "Hombros", "Bíceps", "Tríceps", "Piernas", "Glúteos", "Core", "Funcional", "Cardio"];
+    const DEFAULT_EXERCISES = [
+      ["Press banca plano", "Pecho"], ["Press banca inclinado", "Pecho"], ["Aperturas con mancuernas", "Pecho"], ["Fondos en paralelas", "Pecho"],
+      ["Dominadas", "Espalda"], ["Remo con barra", "Espalda"], ["Remo con mancuerna", "Espalda"], ["Jalón al pecho", "Espalda"], ["Peso muerto", "Espalda"],
+      ["Press militar", "Hombros"], ["Elevaciones laterales", "Hombros"], ["Elevaciones frontales", "Hombros"], ["Pájaros", "Hombros"],
+      ["Curl con barra", "Bíceps"], ["Curl con mancuerna", "Bíceps"], ["Curl martillo", "Bíceps"],
+      ["Press francés", "Tríceps"], ["Extensión en polea", "Tríceps"], ["Fondos tríceps", "Tríceps"],
+      ["Sentadilla", "Piernas"], ["Prensa", "Piernas"], ["Extensión de cuádriceps", "Piernas"], ["Curl femoral", "Piernas"], ["Lunges", "Piernas"],
+      ["Hip thrust", "Glúteos"], ["Patada de glúteo", "Glúteos"], ["Abducción", "Glúteos"],
+      ["Plancha", "Core"], ["Crunchs", "Core"], ["Russian twist", "Core"], ["Rueda abdominal", "Core"],
+      ["Burpees", "Funcional"], ["Saltos al cajón", "Funcional"], ["Kettlebell swing", "Funcional"], ["Battle ropes", "Funcional"],
+      ["Cinta/Bicicleta", "Cardio"], ["Cuerda para saltar", "Cardio"]
+    ].map(([name, group]) => ({ id: crypto.randomUUID(), name, group }));
+
+    const store = {
+      exercises: JSON.parse(localStorage.getItem("willmove.exercises") || "null") || DEFAULT_EXERCISES,
+      records: JSON.parse(localStorage.getItem("willmove.records") || "[]")
+    };
+
+    let sets = [{ reps: "", weight: "" }];
+    let editingId = null;
+    let confirmAction = null;
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    function saveStore() {
+      localStorage.setItem("willmove.exercises", JSON.stringify(store.exercises));
+      localStorage.setItem("willmove.records", JSON.stringify(store.records));
+    }
+
+    function toast(message) {
+      const box = $("#toast");
+      box.textContent = message;
+      box.classList.add("show");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => box.classList.remove("show"), 2200);
+    }
+
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const [year, month, day] = value.split("-");
+      return `${day}/${month}/${year}`;
+    }
+
+    function number(value) {
+      const parsed = Number(String(value).replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function recordVolume(record) {
+      return record.sets.reduce((sum, set) => sum + number(set.reps) * number(set.weight), 0);
+    }
+
+    function showTab(id) {
+      $$(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === id));
+      $$(".section").forEach((section) => section.classList.toggle("active", section.id === id));
+      renderAll();
+    }
+
+    function fillSelect(select, options, currentValue = "") {
+      select.replaceChildren(...options.map((option) => {
+        const item = document.createElement("option");
+        item.value = option.value;
+        item.textContent = option.label;
+        return item;
+      }));
+      if (currentValue) select.value = currentValue;
+    }
+
+    function renderExerciseSelects() {
+      const exerciseOptions = store.exercises
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name, "es"))
+        .map((exercise) => ({ value: exercise.name, label: `${exercise.name} (${exercise.group})` }));
+
+      fillSelect($("#regEjercicio"), exerciseOptions, $("#regEjercicio").value);
+      fillSelect($("#progressExercise"), exerciseOptions, $("#progressExercise").value || exerciseOptions[0]?.value || "");
+
+      const historyOptions = [{ value: "", label: "Todos los ejercicios" }, ...exerciseOptions.map((item) => ({ value: item.value, label: item.value }))];
+      fillSelect($("#historyExercise"), historyOptions, $("#historyExercise").value);
+
+      const groupOptions = [{ value: "", label: "Todos los grupos" }, ...GROUPS.map((group) => ({ value: group, label: group }))];
+      fillSelect($("#groupFilter"), groupOptions, $("#groupFilter").value);
+      fillSelect($("#newExerciseGroup"), GROUPS.map((group) => ({ value: group, label: group })), $("#newExerciseGroup").value);
+    }
+
+    function renderSets() {
+      const list = $("#setList");
+      list.replaceChildren(...sets.map((set, index) => {
+        const row = document.createElement("div");
+        row.className = "set-row";
+
+        const label = document.createElement("div");
+        label.className = "set-num";
+        label.textContent = index + 1;
+
+        const reps = document.createElement("input");
+        reps.type = "number";
+        reps.inputMode = "numeric";
+        reps.min = "1";
+        reps.placeholder = "Reps";
+        reps.value = set.reps;
+        reps.addEventListener("input", () => sets[index].reps = reps.value);
+
+        const weight = document.createElement("input");
+        weight.type = "number";
+        weight.inputMode = "decimal";
+        weight.min = "0";
+        weight.step = "0.5";
+        weight.placeholder = "Kg";
+        weight.value = set.weight;
+        weight.addEventListener("input", () => sets[index].weight = weight.value);
+
+        const remove = document.createElement("button");
+        remove.className = "btn btn-danger btn-icon";
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.title = "Quitar serie";
+        remove.disabled = sets.length === 1;
+        remove.addEventListener("click", () => {
+          sets.splice(index, 1);
+          renderSets();
+        });
+
+        row.append(label, reps, weight, remove);
+        return row;
+      }));
+    }
+
+    function resetForm() {
+      editingId = null;
+      sets = [{ reps: "", weight: "" }];
+      $("#formTitle").textContent = "Registrar entrenamiento";
+      $("#saveRecordBtn").textContent = "Guardar";
+      $("#cancelEditBtn").hidden = true;
+      $("#regFecha").value = new Date().toISOString().slice(0, 10);
+      $("#regNotas").value = "";
+      renderSets();
+    }
+
+    function saveRecord() {
+      const date = $("#regFecha").value;
+      const exercise = $("#regEjercicio").value;
+      const notes = $("#regNotas").value.trim();
+      const validSets = sets
+        .map((set) => ({ reps: String(set.reps).trim(), weight: String(set.weight).trim() }))
+        .filter((set) => set.reps || set.weight);
+
+      if (!date || !exercise) {
+        toast("Completa fecha y ejercicio");
+        return;
+      }
+      if (!validSets.length) {
+        toast("Agrega al menos una serie");
+        return;
+      }
+
+      const payload = { date, exercise, notes, sets: validSets };
+
+      if (editingId) {
+        const record = store.records.find((item) => item.id === editingId);
+        Object.assign(record, payload);
+        toast("Registro actualizado");
+      } else {
+        store.records.unshift({ id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...payload });
+        toast("Entrenamiento guardado");
+      }
+
+      saveStore();
+      resetForm();
+      renderAll();
+    }
+
+    function editRecord(id) {
+      const record = store.records.find((item) => item.id === id);
+      if (!record) return;
+      editingId = id;
+      $("#regFecha").value = record.date;
+      $("#regEjercicio").value = record.exercise;
+      $("#regNotas").value = record.notes || "";
+      sets = record.sets.map((set) => ({ reps: set.reps, weight: set.weight }));
+      $("#formTitle").textContent = "Editar entrenamiento";
+      $("#saveRecordBtn").textContent = "Actualizar";
+      $("#cancelEditBtn").hidden = false;
+      renderSets();
+      showTab("registrar");
+    }
+
+    function askConfirm(text, onYes, yesLabel = "Eliminar") {
+      confirmAction = onYes;
+      $("#confirmText").textContent = text;
+      $("#confirmYes").textContent = yesLabel;
+      $("#confirmModal").classList.add("open");
+    }
+
+    function closeConfirm() {
+      confirmAction = null;
+      $("#confirmModal").classList.remove("open");
+    }
+
+    function deleteRecord(id) {
+      askConfirm("¿Quieres eliminar este registro del historial?", () => {
+        store.records = store.records.filter((item) => item.id !== id);
+        saveStore();
+        renderAll();
+        toast("Registro eliminado");
+      });
+    }
+
+    function filteredRecords() {
+      const query = normalizeText($("#historySearch").value);
+      const exercise = $("#historyExercise").value;
+      return store.records.filter((record) => {
+        const matchesExercise = !exercise || record.exercise === exercise;
+        const haystack = normalizeText(`${record.exercise} ${record.notes || ""}`);
+        return matchesExercise && (!query || haystack.includes(query));
+      });
+    }
+
+    function renderStats(records = store.records) {
+      const sessions = new Set(records.map((record) => record.date)).size;
+      const totalSets = records.reduce((sum, record) => sum + record.sets.length, 0);
+      const volume = records.reduce((sum, record) => sum + recordVolume(record), 0);
+      $("#statSessions").textContent = sessions.toLocaleString("es-UY");
+      $("#statRecords").textContent = records.length.toLocaleString("es-UY");
+      $("#statSets").textContent = totalSets.toLocaleString("es-UY");
+      $("#statVolume").textContent = Math.round(volume).toLocaleString("es-UY");
+    }
+
+    function renderRecent() {
+      const list = $("#recentList");
+      const recent = store.records.slice(0, 5);
+      if (!recent.length) {
+        list.innerHTML = '<div class="empty">Todavía no hay registros</div>';
+        return;
+      }
+      list.replaceChildren(...recent.map((record) => {
+        const item = document.createElement("div");
+        item.className = "mini-item";
+        item.innerHTML = `<div><strong>${escapeHtml(record.exercise)}</strong><div>${formatDate(record.date)} · ${record.sets.length} series</div></div><strong>${Math.round(recordVolume(record))} kg</strong>`;
+        return item;
+      }));
+    }
+
+    function renderHistory() {
+      const records = filteredRecords();
+      renderStats(records);
+      const list = $("#historyList");
+      if (!records.length) {
+        list.innerHTML = '<div class="empty">No hay registros para mostrar</div>';
+        return;
+      }
+
+      const grouped = records.reduce((acc, record) => {
+        (acc[record.date] ||= []).push(record);
+        return acc;
+      }, {});
+
+      list.replaceChildren(...Object.entries(grouped)
+        .sort((a, b) => b[0].localeCompare(a[0]))
+        .flatMap(([date, dayRecords]) => {
+          const nodes = [];
+          const title = document.createElement("div");
+          title.className = "day-title";
+          title.textContent = formatDate(date);
+          nodes.push(title);
+
+          dayRecords.forEach((record) => {
+            const item = document.createElement("article");
+            item.className = "log-item";
+
+            const info = document.createElement("div");
+            const setsText = record.sets.map((set, index) => `S${index + 1}: ${escapeHtml(set.reps || "-")} reps x ${escapeHtml(set.weight || "-")} kg`).join("<br>");
+            info.innerHTML = `
+              <div class="log-name">${escapeHtml(record.exercise)}</div>
+              <div class="meta">${setsText}</div>
+              ${record.notes ? `<div class="meta"><em>${escapeHtml(record.notes)}</em></div>` : ""}
+              <div class="meta">Volumen: ${Math.round(recordVolume(record)).toLocaleString("es-UY")} kg</div>
+            `;
+
+            const actions = document.createElement("div");
+            actions.className = "actions";
+            actions.style.marginTop = "0";
+
+            const edit = document.createElement("button");
+            edit.className = "btn btn-ghost";
+            edit.type = "button";
+            edit.textContent = "Editar";
+            edit.addEventListener("click", () => editRecord(record.id));
+
+            const remove = document.createElement("button");
+            remove.className = "btn btn-danger";
+            remove.type = "button";
+            remove.textContent = "Eliminar";
+            remove.addEventListener("click", () => deleteRecord(record.id));
+
+            actions.append(edit, remove);
+            item.append(info, actions);
+            nodes.push(item);
+          });
+          return nodes;
+        }));
+    }
+
+    function renderExercises() {
+      const query = normalizeText($("#exerciseSearch").value);
+      const group = $("#groupFilter").value;
+      const list = $("#exerciseList");
+      const exercises = store.exercises
+        .filter((exercise) => (!query || normalizeText(exercise.name).includes(query)) && (!group || exercise.group === group))
+        .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+      if (!exercises.length) {
+        list.innerHTML = '<div class="empty">No hay ejercicios con ese filtro</div>';
+        return;
+      }
+
+      list.replaceChildren(...exercises.map((exercise) => {
+        const item = document.createElement("article");
+        item.className = "exercise-item";
+
+        const info = document.createElement("div");
+        info.innerHTML = `<span class="exercise-name">${escapeHtml(exercise.name)}</span><span class="badge">${escapeHtml(exercise.group)}</span>`;
+
+        const remove = document.createElement("button");
+        remove.className = "btn btn-danger";
+        remove.type = "button";
+        remove.textContent = "Eliminar";
+        remove.addEventListener("click", () => {
+          const used = store.records.some((record) => record.exercise === exercise.name);
+          const message = used
+            ? "Este ejercicio ya aparece en el historial. Si lo eliminas, los registros antiguos se conservan con su nombre."
+            : `¿Quieres eliminar "${exercise.name}"?`;
+          askConfirm(message, () => {
+            store.exercises = store.exercises.filter((item) => item.id !== exercise.id);
+            saveStore();
+            renderAll();
+            toast("Ejercicio eliminado");
+          });
+        });
+
+        item.append(info, remove);
+        return item;
+      }));
+    }
+
+    function addExercise() {
+      const name = $("#newExerciseName").value.trim();
+      const group = $("#newExerciseGroup").value;
+      if (!name) {
+        toast("Escribe el nombre del ejercicio");
+        return;
+      }
+      if (store.exercises.some((exercise) => normalizeText(exercise.name) === normalizeText(name))) {
+        toast("Ese ejercicio ya existe");
+        return;
+      }
+      store.exercises.push({ id: crypto.randomUUID(), name, group });
+      $("#newExerciseName").value = "";
+      saveStore();
+      renderAll();
+      toast("Ejercicio agregado");
+    }
+
+    function progressData() {
+      const exercise = $("#progressExercise").value;
+      const metric = $("#progressMetric").value;
+      const grouped = {};
+
+      store.records
+        .filter((record) => record.exercise === exercise)
+        .forEach((record) => {
+          const current = grouped[record.date] || { date: record.date, bestWeight: 0, volume: 0, sets: 0 };
+          record.sets.forEach((set) => {
+            current.bestWeight = Math.max(current.bestWeight, number(set.weight));
+            current.volume += number(set.reps) * number(set.weight);
+            current.sets += 1;
+          });
+          grouped[record.date] = current;
+        });
+
+      return Object.values(grouped)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((item) => ({ label: formatDate(item.date), value: item[metric], raw: item }));
+    }
+
+    function renderProgress() {
+      const canvas = $("#progressChart");
+      const ctx = canvas.getContext("2d");
+      const data = progressData();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0f0f10";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const summary = $("#progressSummary");
+      if (!data.length) {
+        ctx.fillStyle = "#a7a7a7";
+        ctx.font = "22px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("Sin datos para este ejercicio", canvas.width / 2, canvas.height / 2);
+        summary.innerHTML = '<div class="empty">Registra este ejercicio para ver progreso</div>';
+        return;
+      }
+
+      const padding = { top: 28, right: 28, bottom: 56, left: 56 };
+      const width = canvas.width - padding.left - padding.right;
+      const height = canvas.height - padding.top - padding.bottom;
+      const max = Math.max(...data.map((item) => item.value), 1);
+      const stepX = data.length > 1 ? width / (data.length - 1) : width;
+
+      ctx.strokeStyle = "#303030";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i += 1) {
+        const y = padding.top + height - (height / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(padding.left + width, y);
+        ctx.stroke();
+        ctx.fillStyle = "#a7a7a7";
+        ctx.font = "12px system-ui";
+        ctx.textAlign = "right";
+        ctx.fillText(Math.round((max / 4) * i), padding.left - 10, y + 4);
+      }
+
+      ctx.strokeStyle = "#ff6a00";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      data.forEach((item, index) => {
+        const x = padding.left + stepX * index;
+        const y = padding.top + height - (item.value / max) * height;
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      data.forEach((item, index) => {
+        const x = padding.left + stepX * index;
+        const y = padding.top + height - (item.value / max) * height;
+        ctx.fillStyle = "#fff4ed";
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#a7a7a7";
+        ctx.font = "12px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(item.label, x, canvas.height - 22);
+      });
+
+      const first = data[0].value;
+      const last = data[data.length - 1].value;
+      const best = Math.max(...data.map((item) => item.value));
+      summary.replaceChildren(
+        mini("Primer valor", Math.round(first).toLocaleString("es-UY")),
+        mini("Último valor", Math.round(last).toLocaleString("es-UY")),
+        mini("Mejor valor", Math.round(best).toLocaleString("es-UY")),
+        mini("Entrenamientos", data.length.toLocaleString("es-UY"))
+      );
+    }
+
+    function mini(label, value) {
+      const item = document.createElement("div");
+      item.className = "mini-item";
+      item.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+      return item;
+    }
+
+    function exportCSV() {
+      if (!store.records.length) {
+        toast("No hay registros para exportar");
+        return;
+      }
+      const rows = [["Fecha", "Ejercicio", "Serie", "Repeticiones", "Peso kg", "Volumen kg", "Notas"]];
+      store.records.forEach((record) => {
+        record.sets.forEach((set, index) => {
+          rows.push([record.date, record.exercise, index + 1, set.reps || "", set.weight || "", number(set.reps) * number(set.weight), record.notes || ""]);
+        });
+      });
+      download(`willmove-${new Date().toISOString().slice(0, 10)}.csv`, "\uFEFF" + rows.map((row) => row.map(csvCell).join(",")).join("\n"), "text/csv;charset=utf-8");
+    }
+
+    function csvCell(value) {
+      return `"${String(value).replace(/"/g, '""')}"`;
+    }
+
+    function backupJSON() {
+      download(`willmove-respaldo-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(store, null, 2), "application/json");
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function importJSON(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data.exercises) || !Array.isArray(data.records)) throw new Error("Formato inválido");
+          askConfirm("Importar un respaldo reemplaza los datos actuales de esta app en este navegador.", () => {
+            store.exercises = data.exercises;
+            store.records = data.records;
+            saveStore();
+            resetForm();
+            renderAll();
+            toast("Respaldo importado");
+          }, "Importar");
+        } catch {
+          toast("No pude leer ese respaldo");
+        }
+      };
+      reader.readAsText(file);
+      $("#importFile").value = "";
+    }
+
+    function renderAll() {
+      renderExerciseSelects();
+      renderRecent();
+      renderHistory();
+      renderExercises();
+      renderProgress();
+    }
+
+    function bindEvents() {
+      $$(".tab").forEach((tab) => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
+      $("#addSetBtn").addEventListener("click", () => {
+        sets.push({ reps: "", weight: "" });
+        renderSets();
+      });
+      $("#saveRecordBtn").addEventListener("click", saveRecord);
+      $("#cancelEditBtn").addEventListener("click", () => {
+        resetForm();
+        toast("Edición cancelada");
+      });
+      $("#historySearch").addEventListener("input", renderHistory);
+      $("#historyExercise").addEventListener("change", renderHistory);
+      $("#exerciseSearch").addEventListener("input", renderExercises);
+      $("#groupFilter").addEventListener("change", renderExercises);
+      $("#addExerciseBtn").addEventListener("click", addExercise);
+      $("#newExerciseName").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") addExercise();
+      });
+      $("#progressExercise").addEventListener("change", renderProgress);
+      $("#progressMetric").addEventListener("change", renderProgress);
+      $("#csvBtn").addEventListener("click", exportCSV);
+      $("#printBtn").addEventListener("click", () => {
+        showTab("historial");
+        window.print();
+      });
+      $("#backupBtn").addEventListener("click", backupJSON);
+      $("#importBtn").addEventListener("click", () => $("#importFile").click());
+      $("#importFile").addEventListener("change", (event) => importJSON(event.target.files[0]));
+      $("#confirmYes").addEventListener("click", () => {
+        const action = confirmAction;
+        closeConfirm();
+        if (action) action();
+      });
+      $("#confirmNo").addEventListener("click", closeConfirm);
+      $("#confirmModal").addEventListener("click", (event) => {
+        if (event.target.id === "confirmModal") closeConfirm();
+      });
+    }
+
+    $("#todayLabel").textContent = new Date().toLocaleDateString("es-UY", { weekday: "long", day: "numeric", month: "long" });
+    bindEvents();
+    resetForm();
+    renderAll();
+  </script>
+</body>
+</html>
